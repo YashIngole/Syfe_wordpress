@@ -1,0 +1,28 @@
+wordpress:
+  image:
+    repository: your-docker-repo/wordpress
+    tag: latest
+  persistence:
+    existingClaim: wordpress-pvc
+
+mysql:
+  image:
+    repository: your-docker-repo/mysql
+    tag: latest
+  persistence:
+    existingClaim: mysql-pvc
+
+nginx:
+  image:
+    repository: your-docker-repo/nginx-openresty
+    tag: latest
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  hosts:
+    - host: wordpress.example.com
+      paths:
+        - path: /
+          pathType: Prefix

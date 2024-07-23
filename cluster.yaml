@@ -1,0 +1,19 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: wordpress-cluster
+  region: us-west-2  # Change this to your preferred region
+
+managedNodeGroups:
+  - name: ng-1
+    instanceType: t3.medium
+    minSize: 2
+    maxSize: 4
+    desiredCapacity: 3
+    privateNetworking: true
+
+addons:
+  - name: vpc-cni
+  - name: coredns
+  - name: kube-proxy
