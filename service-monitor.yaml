@@ -7,19 +7,6 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: my-release
+      app: wordpress
   endpoints:
-  - port: "32768"
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: nginx-monitor
-  labels:
-    release: prometheus
-spec:
-  selector:
-    matchLabels:
-      app: nginx
-  endpoints:
-  - port: "32768"
+  - port: http  # This should match the name in your Service
