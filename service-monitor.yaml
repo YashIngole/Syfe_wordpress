@@ -7,9 +7,9 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: wordpress
+      app: my-release
   endpoints:
-  - port: "32768"  # Port specified as string
+  - port: "32768"
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -22,4 +22,4 @@ spec:
     matchLabels:
       app: nginx
   endpoints:
-  - port: "32768"  # Port specified as string
+  - port: "32768"
