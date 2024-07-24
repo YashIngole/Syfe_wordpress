@@ -10,7 +10,7 @@ spec:
     - ReadWriteMany
   storageClassName: gp2
   awsElasticBlockStore:
-    volumeID: <your-ebs-volume-id>
+    volumeID: vol-0c014f5b3532100e8
     fsType: ext4
 ---
 apiVersion: v1
