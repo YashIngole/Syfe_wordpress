@@ -1,6 +1,7 @@
 FROM ubuntu:20.04
 
 ENV OPENRESTY_VERSION=1.19.3.1
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -20,7 +21,6 @@ RUN wget https://openresty.org/download/openresty-${OPENRESTY_VERSION}.tar.gz \
         --with-ipv6 \
         --without-http_redis2_module \
         --with-http_iconv_module \
-        --with-http_postgres_module \
         -j8 \
     && make -j8 \
     && make install \
@@ -29,6 +29,7 @@ RUN wget https://openresty.org/download/openresty-${OPENRESTY_VERSION}.tar.gz \
 
 ENV PATH=$PATH:/opt/openresty/nginx/sbin
 
+# Copy the nginx.conf file from the build context
 COPY nginx.conf /opt/openresty/nginx/conf/nginx.conf
 
 EXPOSE 80
