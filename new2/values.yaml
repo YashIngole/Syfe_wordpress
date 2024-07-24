@@ -13,7 +13,7 @@ mysql:
     tag: v1
   persistence:
     enabled: true
-    existingClaim: wordpress-pvc
+    existingClaim: mysql-pvc  # Ensure this matches the PVC name for MySQL
     accessMode: ReadWriteMany
     size: 5Gi
   service:
