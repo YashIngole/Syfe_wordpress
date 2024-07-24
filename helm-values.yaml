@@ -1,3 +1,4 @@
+# WordPress configuration
 wordpress:
   image:
     repository: yourusername/wordpress
@@ -5,6 +6,7 @@ wordpress:
   persistence:
     existingClaim: wordpress-pvc
 
+# MySQL configuration
 mysql:
   image:
     repository: yourusername/mysql
@@ -12,15 +14,18 @@ mysql:
   persistence:
     existingClaim: mysql-pvc
 
+# Nginx configuration
 nginx:
   image:
     repository: yourusername/nginx-openresty
     tag: latest
 
+# Service configuration
 service:
   type: ClusterIP
   port: 80
 
+# Ingress configuration
 ingress:
   enabled: true
   annotations:
@@ -30,3 +35,38 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
+
+# ServiceAccount configuration
+serviceAccount:
+  create: true
+  name: ""
+  automount: true
+
+# Persistence configuration
+persistence:
+  enabled: true
+
+# Resource configuration
+resources: {}
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}
+
+# Replica count
+replicaCount: 1
+
+# Autoscaling configuration
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+# Any additional configurations your chart might need
