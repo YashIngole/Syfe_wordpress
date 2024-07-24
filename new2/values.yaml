@@ -24,6 +24,7 @@ nginx:
     repository: yashingole1000/nginx
     tag: v2
   service:
+    name: {{ include "wordpress-chart.fullname" . }}-nginx
     port: 80
 
 ingress:
