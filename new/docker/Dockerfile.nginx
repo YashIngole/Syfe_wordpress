@@ -1,7 +1,7 @@
 FROM openresty/openresty:alpine
 
 # Install dependencies
-RUN apk add --no-cache gcc libtool make pcre-dev wget tar openssl-dev zlib-dev linux-headers perl
+RUN apk add --no-cache gcc libtool make pcre-dev wget tar openssl-dev zlib-dev linux-headers perl musl-dev
 
 # Build and install OpenResty
 RUN mkdir -p /usr/local/src \
