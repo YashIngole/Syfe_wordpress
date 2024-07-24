@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "wordpress-chart.fullname" . }}-wordpress
+  labels:
+    {{- include "wordpress-chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "wordpress-chart.selectorLabels" . | nindent 6 }}
+      app: wordpress
+  template:
+    metadata:
+      labels:
+        {{- include "wordpress-chart.selectorLabels" . | nindent 8 }}
+        app: wordpress
+    spec:
+      containers:
+        - name: wordpress
+          image: "{{ .Values.wordpress.image.repository }}:{{ .Values.wordpress.image.tag }}"
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: wordpress-persistent-storage
+              mountPath: /var/www/html
+      volumes:
+        - name: wordpress-persistent-storage
+          persistentVolumeClaim:
+            claimName: {{ .Values.wordpress.persistence.existingClaim }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "wordpress-chart.fullname" . }}-mysql
+  labels:
+    {{- include "wordpress-chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "wordpress-chart.selectorLabels" . | nindent 6 }}
+      app: mysql
+  template:
+    metadata:
+      labels:
+        {{- include "wordpress-chart.selectorLabels" . | nindent 8 }}
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: "{{ .Values.mysql.image.repository }}:{{ .Values.mysql.image.tag }}"
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: mysql-persistent-storage
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: mysql-persistent-storage
+          persistentVolumeClaim:
+            claimName: {{ include "wordpress-chart.fullname" . }}-mysql
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "wordpress-chart.fullname" . }}-nginx
+  labels:
+    {{- include "wordpress-chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "wordpress-chart.selectorLabels" . | nindent 6 }}
+      app: nginx
+  template:
+    metadata:
+      labels:
+        {{- include "wordpress-chart.selectorLabels" . | nindent 8 }}
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
+          ports:
+            - containerPort: 80
