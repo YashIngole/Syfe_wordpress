@@ -1,0 +1,16 @@
+image:
+  repository: yashingole1000/my-wordpress
+  tag: latest
+
+mysql:
+  image: yashingole1000/my-mysql
+  env:
+    - name: MYSQL_ROOT_PASSWORD
+      value: "my-secret-pw"
+    - name: MYSQL_DATABASE
+      value: "wordpress"
+
+persistence:
+  enabled: true
+  accessMode: ReadWriteMany
+  size: 10Gi
