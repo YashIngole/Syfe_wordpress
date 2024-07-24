@@ -3,12 +3,19 @@ image:
   tag: latest
 
 mysql:
-  image: yashingole1000/my-mysql
+  image:
+    repository: yashingole1000/my-mysql
+    tag: latest
   env:
     - name: MYSQL_ROOT_PASSWORD
       value: "my-secret-pw"
     - name: MYSQL_DATABASE
       value: "wordpress"
+
+nginx:
+  image:
+    repository: yashingole1000/my-nginx
+    tag: latest
 
 persistence:
   enabled: true

@@ -10,4 +10,4 @@ RUN apk add --no-cache gcc libtool make pcre-dev \
     && make -j8 \
     && make install
 
-COPY nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
+

@@ -1,13 +1,13 @@
 # Main application image
 image:
-  repository: yourusername/wordpress
+  repository: yashingole1000/my-wordpress
   tag: latest
   pullPolicy: IfNotPresent
 
 # MySQL configuration
 mysql:
   image:
-    repository: yourusername/mysql
+    repository: yashingole1000/my-mysql
     tag: latest
   persistence:
     existingClaim: mysql-pvc
@@ -15,7 +15,7 @@ mysql:
 # Nginx configuration (if separate from main application)
 nginx:
   image:
-    repository: yourusername/nginx-openresty
+    repository: yashingole1000/nginx-openresty
     tag: latest
 
 # Service configuration
