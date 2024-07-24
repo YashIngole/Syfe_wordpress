@@ -1,7 +1,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: wordpress-monitor
+  name: nginx-monitor
   labels:
     release: prometheus
 spec:
@@ -10,6 +10,4 @@ spec:
       app.kubernetes.io/instance: my-release
       app.kubernetes.io/name: wordpress
   endpoints:
-  - port: http
-    path: /metrics
-    interval: 15s
+  - port: 9113  # Port where the nginx-prometheus-exporter is running
