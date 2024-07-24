@@ -1,21 +1,25 @@
 wordpress:
   image:
-    repository: your-docker-repo/wordpress
+    repository: yourusername/wordpress
     tag: latest
   persistence:
     existingClaim: wordpress-pvc
 
 mysql:
   image:
-    repository: your-docker-repo/mysql
+    repository: yourusername/mysql
     tag: latest
   persistence:
     existingClaim: mysql-pvc
 
 nginx:
   image:
-    repository: your-docker-repo/nginx-openresty
+    repository: yourusername/nginx-openresty
     tag: latest
+
+service:
+  type: ClusterIP
+  port: 80
 
 ingress:
   enabled: true
