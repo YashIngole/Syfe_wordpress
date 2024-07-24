@@ -1,0 +1,3 @@
+sudo docker build -t yashingole1000/wordpress:v1 -f Dockerfile.wordpress .
+sudo docker build -t yashingole1000/mysql:v1 -f Dockerfile.mysql .
+sudo docker build -t yashingole1000/nginx:v1 -f Dockerfile.nginx .
