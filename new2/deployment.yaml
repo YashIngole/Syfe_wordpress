@@ -56,6 +56,15 @@ spec:
           volumeMounts:
             - name: mysql-persistent-storage
               mountPath: /var/lib/mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "abc123"  # Set a secure root password here
+            - name: MYSQL_DATABASE
+              value: "database1"   # Optionally set a default database name
+            - name: MYSQL_USER
+              value: "yash"        # Optionally set a custom MySQL user
+            - name: MYSQL_PASSWORD
+              value: "abc1234"        # Optionally set a password for the custom MySQL user
       volumes:
         - name: mysql-persistent-storage
           persistentVolumeClaim:
