@@ -7,6 +7,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: wordpress
+      app.kubernetes.io/instance: my-release
+      app.kubernetes.io/name: wordpress
   endpoints:
-  - port: http  # This should match the name in your Service
+  - port: http
