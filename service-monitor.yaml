@@ -9,7 +9,7 @@ spec:
     matchLabels:
       app: wordpress
   endpoints:
-  - port: "http"  # Port specified as string
+  - port: "32768"  # Port specified as string
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -22,4 +22,4 @@ spec:
     matchLabels:
       app: nginx
   endpoints:
-  - port: "http"  # Port specified as string
+  - port: "32768"  # Port specified as string
