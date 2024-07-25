@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 kind: Pod
 metadata:
@@ -5,13 +6,12 @@ metadata:
 spec:
   containers:
     - name: mysql-test-container
-      image: {{ .Values.mysql.image }}
+      image: {{ .Values.mysql.image.repository }}:{{ .Values.mysql.image.tag }}
       env:
         - name: MYSQL_ROOT_PASSWORD
           value: {{ .Values.mysql.rootPassword | b64dec }}
       command: ['sh', '-c', 'sleep 3600']
   restartPolicy: Never
-
 ---
 apiVersion: v1
 kind: Pod
@@ -20,7 +20,7 @@ metadata:
 spec:
   containers:
     - name: wordpress-test-container
-      image: {{ .Values.wordpress.image }}
+      image: {{ .Values.wordpress.image.repository }}:{{ .Values.wordpress.image.tag }}
       env:
         - name: WORDPRESS_DB_HOST
           value: {{ .Values.wordpress.dbHost }}
@@ -31,7 +31,6 @@ spec:
               key: password
       command: ['sh', '-c', 'sleep 3600']
   restartPolicy: Never
-
 ---
 apiVersion: v1
 kind: Pod
@@ -40,6 +39,6 @@ metadata:
 spec:
   containers:
     - name: nginx-test-container
-      image: {{ .Values.nginx.image }}
+      image: {{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}
       command: ['sh', '-c', 'sleep 3600']
   restartPolicy: Never
