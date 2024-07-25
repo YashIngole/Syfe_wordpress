@@ -13,18 +13,31 @@ mysql:
     tag: v1
   persistence:
     enabled: true
-    existingClaim: mysql-pvc  # Ensure this matches the PVC name for MySQL
+    existingClaim: wordpress-pvc
     accessMode: ReadWriteMany
     size: 5Gi
   service:
     port: 3306
+  configurationFiles:
+    my.cnf: |
+      [mysqld]
+      explicit_defaults_for_timestamp=1
+  initContainers:
+    - name: init-mysql
+      image: busybox
+      command:
+        - sh
+        - -c
+        - "rm -rf /var/lib/mysql/*"
+      volumeMounts:
+        - name: mysql-data
+          mountPath: /var/lib/mysql
 
 nginx:
   image:
     repository: yashingole1000/nginx
     tag: v2
   service:
-    name: {{ include "wordpress-chart.fullname" . }}-nginx
     port: 80
 
 ingress:
