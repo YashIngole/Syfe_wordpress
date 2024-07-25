@@ -1,5 +1,3 @@
-# wordpress-chart/templates/tests/test-connection.yaml
-
 apiVersion: v1
 kind: Pod
 metadata:
@@ -7,7 +5,7 @@ metadata:
 spec:
   containers:
     - name: mysql-test-container
-      image: {{ .Values.mysql.image.repository }}:{{ .Values.mysql.image.tag }}
+      image: {{ .Values.mysql.image }}
       env:
         - name: MYSQL_ROOT_PASSWORD
           value: {{ .Values.mysql.rootPassword | b64dec }}
@@ -22,7 +20,7 @@ metadata:
 spec:
   containers:
     - name: wordpress-test-container
-      image: {{ .Values.wordpress.image.repository }}:{{ .Values.wordpress.image.tag }}
+      image: {{ .Values.wordpress.image }}
       env:
         - name: WORDPRESS_DB_HOST
           value: {{ .Values.wordpress.dbHost }}
@@ -42,6 +40,6 @@ metadata:
 spec:
   containers:
     - name: nginx-test-container
-      image: {{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}
+      image: {{ .Values.nginx.image }}
       command: ['sh', '-c', 'sleep 3600']
   restartPolicy: Never
