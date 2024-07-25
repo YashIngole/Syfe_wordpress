@@ -1,59 +1,98 @@
-wordpress:
-  image:
-    repository: yashingole1000/wordpress
-    tag: v1
-  persistence:
-    existingClaim: wordpress-pvc
-  service:
-    port: 80
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "wordpress-chart.fullname" . }}-wordpress
+  labels:
+    {{- include "wordpress-chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "wordpress-chart.selectorLabels" . | nindent 6 }}
+      app: wordpress
+  template:
+    metadata:
+      labels:
+        {{- include "wordpress-chart.selectorLabels" . | nindent 8 }}
+        app: wordpress
+    spec:
+      containers:
+        - name: wordpress
+          image: "{{ .Values.wordpress.image.repository }}:{{ .Values.wordpress.image.tag }}"
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: wordpress-persistent-storage
+              mountPath: /var/www/html
+      volumes:
+        - name: wordpress-persistent-storage
+          persistentVolumeClaim:
+            claimName: {{ .Values.wordpress.persistence.existingClaim }}
 
-mysql:
-  image:
-    repository: yashingole1000/mysql
-    tag: v1
-  persistence:
-    enabled: true
-    existingClaim: wordpress-pvc
-    accessMode: ReadWriteMany
-    size: 5Gi
-  service:
-    port: 3306
-  configurationFiles:
-    my.cnf: |
-      [mysqld]
-      explicit_defaults_for_timestamp=1
-  initContainers:
-    - name: init-mysql
-      image: busybox
-      command:
-        - sh
-        - -c
-        - "rm -rf /var/lib/mysql/*"
-      volumeMounts:
-        - name: mysql-data
-          mountPath: /var/lib/mysql
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "wordpress-chart.fullname" . }}-mysql
+  labels:
+    {{- include "wordpress-chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "wordpress-chart.selectorLabels" . | nindent 6 }}
+      app: mysql
+  template:
+    metadata:
+      labels:
+        {{- include "wordpress-chart.selectorLabels" . | nindent 8 }}
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: "{{ .Values.mysql.image.repository }}:{{ .Values.mysql.image.tag }}"
+          ports:
+            - containerPort: 3306
+          args:
+            - "--ignore-db-dir=lost+found"
+          volumeMounts:
+            - name: mysql-persistent-storage
+              mountPath: /var/lib/mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: {{ .Values.mysql.rootPassword }}  # Set a secure root password here
+            - name: MYSQL_DATABASE
+              value: {{ .Values.mysql.database }}   # Optionally set a default database name
+            - name: MYSQL_USER
+              value: {{ .Values.mysql.user }}        # Optionally set a custom MySQL user
+            - name: MYSQL_PASSWORD
+              value: {{ .Values.mysql.password }}    # Optionally set a password for the custom MySQL user
+      volumes:
+        - name: mysql-persistent-storage
+          persistentVolumeClaim:
+            claimName: {{ .Values.mysql.persistence.existingClaim }}
 
-nginx:
-  image:
-    repository: yashingole1000/nginx
-    tag: v3
-  service:
-    port: 80
-
-ingress:
-  enabled: true
-  className: ""
-  annotations: {}
-  hosts:
-    - host: wordpress.local
-      paths:
-        - path: /
-          pathType: Prefix
-
-serviceAccount:
-  create: false
-  annotations: {}
-  name: ""
-
-autoscaling:
-  enabled: false
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "wordpress-chart.fullname" . }}-nginx
+  labels:
+    {{- include "wordpress-chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "wordpress-chart.selectorLabels" . | nindent 6 }}
+      app: nginx
+  template:
+    metadata:
+      labels:
+        {{- include "wordpress-chart.selectorLabels" . | nindent 8 }}
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
+          ports:
+            - containerPort: 80
