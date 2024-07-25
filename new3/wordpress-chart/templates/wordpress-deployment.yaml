@@ -23,10 +23,7 @@ spec:
         - name: WORDPRESS_DB_HOST
           value: {{ .Values.wordpress.dbHost }}
         - name: WORDPRESS_DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Values.wordpress.dbPasswordSecret }}
-              key: password
+          value: {{ .Values.wordpress.dbPasswordSecret }}  # Use plain text password here
         volumeMounts:
         - name: wordpress-persistent-storage
           mountPath: /var/www/html

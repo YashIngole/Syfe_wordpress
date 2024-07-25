@@ -21,10 +21,7 @@ spec:
         image: {{ .Values.mysql.image }}
         env:
         - name: MYSQL_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Values.wordpress.dbPasswordSecret }}
-              key: password
+          value: {{ .Values.mysql.rootPassword }}  # Use plain text password here
         volumeMounts:
         - name: mysql-persistent-storage
           mountPath: /var/lib/mysql
