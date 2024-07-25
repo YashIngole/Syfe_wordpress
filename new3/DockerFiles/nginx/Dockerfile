@@ -16,7 +16,6 @@ RUN apt-get update && \
     curl \
     zlib1g-dev \
     libiconv-hook-dev \
-    libpq-dev \
     libpcre3 \
     libssl1.1 \
     zlib1g \
@@ -26,7 +25,8 @@ RUN apt-get update && \
     libpcre++-dev \
     libtool \
     autoconf \
-    git
+    git \
+    libpq-dev  # Ensure PostgreSQL libraries are installed
 
 # Download and extract OpenResty
 RUN curl -fSL https://openresty.org/download/openresty-${OPENRESTY_VERSION}.tar.gz -o openresty.tar.gz && \
@@ -53,11 +53,13 @@ RUN apt-get remove -y \
     perl \
     make \
     zlib1g-dev \
-    libiconv-hook-dev \
-    libpq-dev && \
+    libiconv-hook-dev && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+# Verify the installation of libpq
+RUN ldconfig -p | grep libpq
 
 # Set the PATH environment variable to include OpenResty binaries
 ENV PATH=/opt/openresty/bin:/opt/openresty/nginx/sbin:$PATH
