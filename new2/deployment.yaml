@@ -53,6 +53,8 @@ spec:
           image: "{{ .Values.mysql.image.repository }}:{{ .Values.mysql.image.tag }}"
           ports:
             - containerPort: 3306
+          args:
+            - "--ignore-db-dir=lost+found"
           volumeMounts:
             - name: mysql-persistent-storage
               mountPath: /var/lib/mysql
