@@ -13,7 +13,7 @@ wordpress:
     repository: yashingole1000/wordpress-image
     tag: latest
   dbHost: wordpress-mysql
-  dbPasswordSecret: abcd1234
+  dbPassword: abcd1234  # Use plain text password here
   persistence:
     size: 20Gi
 
