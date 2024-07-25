@@ -1,21 +1,25 @@
+# Global persistence configuration
+persistence:
+  enabled: true
+  storageClassName: efs-sc
+  provisioner: efs.csi.aws.com
+  csiDriver: efs.csi.aws.com
+  volumeHandle: fs-0c62dbc24fcc78163
+  size: 5Gi
+
+# WordPress configuration
 wordpress:
   image:
     repository: yashingole1000/wordpress
     tag: v1
-  persistence:
-    existingClaim: wordpress-pvc
   service:
     port: 80
 
+# MySQL configuration
 mysql:
   image:
     repository: yashingole1000/mysql
     tag: v1
-  persistence:
-    enabled: true
-    existingClaim: wordpress-pvc
-    accessMode: ReadWriteMany
-    size: 5Gi
   service:
     port: 3306
   rootPassword: "abc123"  # Set a secure root password
@@ -23,6 +27,7 @@ mysql:
   user: "yash"            # Optionally set a custom MySQL user
   password: "abc1234"     # Optionally set a password for the custom MySQL user
 
+# Nginx configuration
 nginx:
   image:
     repository: yashingole1000/nginx
@@ -47,3 +52,12 @@ serviceAccount:
 
 autoscaling:
   enabled: false
+
+# Prometheus configuration
+prometheus:
+  enabled: true
+
+# Grafana configuration
+grafana:
+  enabled: true
+  adminPassword: "changeme"

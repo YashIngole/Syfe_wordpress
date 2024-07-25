@@ -1,33 +1,53 @@
+{{- if .Values.persistence.enabled }}
+---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: efs-sc
-provisioner: efs.csi.aws.com
+  name: {{ .Values.persistence.storageClassName }}
+provisioner: {{ .Values.persistence.provisioner }}
+
 ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: wordpress-pv
+  name: {{ include "wordpress-chart.fullname" . }}-pv
+  labels:
+    {{- include "wordpress-chart.labels" . | nindent 4 }}
 spec:
   capacity:
-    storage: 5Gi
+    storage: {{ .Values.persistence.size }}
   volumeMode: Filesystem
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: efs-sc
+  storageClassName: {{ .Values.persistence.storageClassName }}
   csi:
-    driver: efs.csi.aws.com
-    volumeHandle: fs-0c62dbc24fcc78163
+    driver: {{ .Values.persistence.csiDriver }}
+    volumeHandle: {{ .Values.persistence.volumeHandle }}
+
 ---
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: wordpress-pvc
-spec:
-  accessModes:
-    - ReadWriteMany
-  storageClassName: efs-sc
-  resources:
-    requests:
-      storage: 5Gi
+
+   apiVersion: v1
+   kind: PersistentVolumeClaim
+   metadata:
+     name: {{ include "wordpress-chart.fullname" . }}-wordpress-pvc
+   spec:
+     accessModes:
+       - ReadWriteMany
+     storageClassName: {{ .Values.persistence.storageClassName }}
+     resources:
+       requests:
+         storage: {{ .Values.persistence.size }}
+   ---
+   apiVersion: v1
+   kind: PersistentVolumeClaim
+   metadata:
+     name: {{ include "wordpress-chart.fullname" . }}-mysql-pvc
+   spec:
+     accessModes:
+       - ReadWriteMany
+     storageClassName: {{ .Values.persistence.storageClassName }}
+     resources:
+       requests:
+         storage: {{ .Values.persistence.size }}
+   

@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -5,7 +6,7 @@ metadata:
   labels:
     {{- include "wordpress-chart.labels" . | nindent 4 }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.wordpress.replicaCount | default 1 }}
   selector:
     matchLabels:
       {{- include "wordpress-chart.selectorLabels" . | nindent 6 }}
@@ -19,15 +20,27 @@ spec:
       containers:
         - name: wordpress
           image: "{{ .Values.wordpress.image.repository }}:{{ .Values.wordpress.image.tag }}"
+          imagePullPolicy: {{ .Values.wordpress.image.pullPolicy | default "IfNotPresent" }}
           ports:
-            - containerPort: 80
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          env:
+            - name: WORDPRESS_DB_HOST
+              value: {{ include "wordpress-chart.fullname" . }}-mysql
+            - name: WORDPRESS_DB_USER
+              value: {{ .Values.mysql.user }}
+            - name: WORDPRESS_DB_PASSWORD
+              value: {{ .Values.mysql.password }}
+            - name: WORDPRESS_DB_NAME
+              value: {{ .Values.mysql.database }}
           volumeMounts:
             - name: wordpress-persistent-storage
               mountPath: /var/www/html
       volumes:
         - name: wordpress-persistent-storage
           persistentVolumeClaim:
-            claimName: {{ .Values.wordpress.persistence.existingClaim }}
+            claimName: {{ include "wordpress-chart.fullname" . }}-wordpress-pvc
 
 ---
 apiVersion: apps/v1
@@ -51,26 +64,27 @@ spec:
       containers:
         - name: mysql
           image: "{{ .Values.mysql.image.repository }}:{{ .Values.mysql.image.tag }}"
+          imagePullPolicy: {{ .Values.mysql.image.pullPolicy | default "IfNotPresent" }}
           ports:
-            - containerPort: 3306
-          args:
-            - "--ignore-db-dir=lost+found"
+            - name: mysql
+              containerPort: 3306
+              protocol: TCP
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: {{ .Values.mysql.rootPassword }}
+            - name: MYSQL_DATABASE
+              value: {{ .Values.mysql.database }}
+            - name: MYSQL_USER
+              value: {{ .Values.mysql.user }}
+            - name: MYSQL_PASSWORD
+              value: {{ .Values.mysql.password }}
           volumeMounts:
             - name: mysql-persistent-storage
               mountPath: /var/lib/mysql
-          env:
-            - name: MYSQL_ROOT_PASSWORD
-              value: "abc123"  # Set a secure root password here
-            - name: MYSQL_DATABASE
-              value: "database1"   # Optionally set a default database name
-            - name: MYSQL_USER
-              value: "yash"        # Optionally set a custom MySQL user
-            - name: MYSQL_PASSWORD
-              value: "abc1234"        # Optionally set a password for the custom MySQL user
       volumes:
         - name: mysql-persistent-storage
           persistentVolumeClaim:
-            claimName: {{ .Values.mysql.persistence.existingClaim }}
+            claimName: {{ include "wordpress-chart.fullname" . }}-mysql-pvc
 
 ---
 apiVersion: apps/v1
@@ -80,7 +94,7 @@ metadata:
   labels:
     {{- include "wordpress-chart.labels" . | nindent 4 }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.nginx.replicaCount | default 1 }}
   selector:
     matchLabels:
       {{- include "wordpress-chart.selectorLabels" . | nindent 6 }}
@@ -94,5 +108,70 @@ spec:
       containers:
         - name: nginx
           image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
+          imagePullPolicy: {{ .Values.nginx.image.pullPolicy | default "IfNotPresent" }}
           ports:
-            - containerPort: 80
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /opt/openresty/nginx/conf/nginx.conf
+              subPath: nginx.conf
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: {{ include "wordpress-chart.fullname" . }}-nginx-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "wordpress-chart.fullname" . }}-wordpress
+  labels:
+    {{- include "wordpress-chart.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "wordpress-chart.selectorLabels" . | nindent 4 }}
+    app: wordpress
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "wordpress-chart.fullname" . }}-mysql
+  labels:
+    {{- include "wordpress-chart.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3306
+      targetPort: mysql
+      protocol: TCP
+      name: mysql
+  selector:
+    {{- include "wordpress-chart.selectorLabels" . | nindent 4 }}
+    app: mysql
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "wordpress-chart.fullname" . }}-nginx
+  labels:
+    {{- include "wordpress-chart.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.nginx.service.type }}
+  ports:
+    - port: {{ .Values.nginx.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "wordpress-chart.selectorLabels" . | nindent 4 }}
+    app: nginx
