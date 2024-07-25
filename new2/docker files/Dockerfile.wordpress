@@ -1,2 +1,0 @@
-FROM wordpress:latest
-# Add any custom configurations here
