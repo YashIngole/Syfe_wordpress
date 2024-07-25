@@ -9,7 +9,7 @@ spec:
       image: {{ .Values.mysql.image.repository }}:{{ .Values.mysql.image.tag }}
       env:
         - name: MYSQL_ROOT_PASSWORD
-          value: {{ .Values.mysql.rootPassword | b64dec }}
+          value: {{ .Values.mysql.rootPassword | quote }}
       command: ['sh', '-c', 'sleep 3600']
   restartPolicy: Never
 ---
@@ -23,7 +23,7 @@ spec:
       image: {{ .Values.wordpress.image.repository }}:{{ .Values.wordpress.image.tag }}
       env:
         - name: WORDPRESS_DB_HOST
-          value: {{ .Values.wordpress.dbHost }}
+          value: {{ .Values.wordpress.dbHost | quote }}
         - name: WORDPRESS_DB_PASSWORD
           valueFrom:
             secretKeyRef:
