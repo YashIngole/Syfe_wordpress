@@ -36,7 +36,7 @@ mysql:
 nginx:
   image:
     repository: yashingole1000/nginx
-    tag: v2
+    tag: v3
   service:
     port: 80
 
