@@ -1,45 +1,18 @@
-apiVersion: v1
-kind: Pod
-metadata:
-  name: {{ include "wordpress-chart.fullname" . }}-test-pod-mysql
-spec:
-  containers:
-    - name: mysql-test-container
-      image: {{ .Values.mysql.image }}
-      env:
-        - name: MYSQL_ROOT_PASSWORD
-          value: {{ .Values.mysql.rootPassword | b64dec }}
-      command: ['sh', '-c', 'sleep 3600']
-  restartPolicy: Never
+# MySQL values
+mysql:
+  image: yashingole1000/mysql-image:latest
+  rootPassword: abcd1234
+  persistence:
+    size: 20Gi
 
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: {{ include "wordpress-chart.fullname" . }}-test-pod-wordpress
-spec:
-  containers:
-    - name: wordpress-test-container
-      image: {{ .Values.wordpress.image }}
-      env:
-        - name: WORDPRESS_DB_HOST
-          value: {{ .Values.wordpress.dbHost }}
-        - name: WORDPRESS_DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ .Values.wordpress.dbPasswordSecret }}
-              key: password
-      command: ['sh', '-c', 'sleep 3600']
-  restartPolicy: Never
+# WordPress values
+wordpress:
+  image: yashingole1000/wordpress-image:latest
+  dbHost: wordpress-mysql
+  dbPasswordSecret: abcd1234
+  persistence:
+    size: 20Gi
 
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: {{ include "wordpress-chart.fullname" . }}-test-pod-nginx
-spec:
-  containers:
-    - name: nginx-test-container
-      image: {{ .Values.nginx.image }}
-      command: ['sh', '-c', 'sleep 3600']
-  restartPolicy: Never
+# Nginx values
+nginx:
+  image: yashingole1000/my-nginx:latest
