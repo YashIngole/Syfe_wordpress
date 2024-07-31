@@ -6,36 +6,19 @@
 ├── DockerFiles
 │   ├── dockerfile.mysql
 │   ├── dockerfile.wordpress
-│   ├── init.sql
 │   └── nginx
 │       ├── Dockerfile
 │       ├── nginx.conf
-│       └── openresty-1.19.9.1.tar.gz
 ├── monitoring
-│   ├── dashboard
-│   │   └── wordpress-dashboard.json
-│   ├── grafana
-│   │   └── values.yaml
 │   ├── prometheus
 │   │   ├── prometheus-values.yaml
-│   │   └── values.yaml
-│   └── service-monitor
-│       ├── nginx-monitor.yaml
-│       └── wordpress-monitor.yaml
 └── wordpress-chart
     ├── Chart.yaml
     ├── templates
-    │   ├── _helpers.tpl
     │   ├── mysql-deployment.yaml
-    │   ├── mysql-service.yaml
     │   ├── nginx-deployment.yaml
-    │   ├── nginx-service.yaml
     │   ├── pvc.yaml
-    │   ├── secrets.yaml
-    │   ├── tests
-    │   │   └── test-connection.yaml
     │   ├── wordpress-deployment.yaml
-    │   └── wordpress-service.yaml
     └── values.yaml
 ```
 
@@ -65,19 +48,47 @@ Ensure you have the following installed and configured:
    aws eks --region us-west-2 update-kubeconfig --name my-wordpress-cluster
    ```
 
-#### Step 2: Create PersistentVolumeClaims and PersistentVolumes
+#### Step 2: Set Up EFS CSI Driver
+
+1. **Create IAM Policy for EFS CSI Driver:**
+
+   ```sh
+   aws iam create-policy --policy-name EKS_EFS_CSI_Driver_Policy-2 --policy-document file://newpolicy.json
+   ```
+
+2. **Create IAM Service Account and Attach Policy:**
+
+   ```sh
+   eksctl create iamserviceaccount --cluster my-wordpress-cluster --namespace kube-system --name efs-csi-controller-sa --attach-policy-arn arn:aws:iam::409943371208:policy/EKS_EFS_CSI_Driver_Policy-2 --approve --region us-east-2 --override-existing-serviceaccounts
+   ```
+
+3. **Ensure EFS is in the Same VPC as the EKS Cluster.**
+
+4. **Add Helm Repo for EFS CSI Driver:**
+
+   ```sh
+   helm repo add aws-efs-csi-driver https://kubernetes-sigs.github.io/aws-efs-csi-driver/
+   ```
+
+5. **Update Helm Repo:**
+
+   ```sh
+   helm repo update aws-efs-csi-driver
+   ```
+
+6. **Install EFS CSI Driver Using Helm:**
+
+   ```sh
+   helm upgrade --install aws-efs-csi-driver --namespace kube-system aws-efs-csi-driver/aws-efs-csi-driver
+   ```
+
+#### Step 3: Create PersistentVolumeClaims and PersistentVolumes
 
 1. **Create `pvc.yaml`:**
 
    This file includes configurations for PersistentVolumes (PV) and PersistentVolumeClaims (PVC).
 
-2. **Apply the PV and PVC Configuration:**
-
-   ```sh
-   kubectl apply -f pvc.yaml
-   ```
-
-#### Step 3: Create Dockerfiles
+#### Step 4: Create Dockerfiles
 
 1. **Dockerfiles for Each Component:**
 
@@ -103,7 +114,7 @@ Ensure you have the following installed and configured:
 
    Define the Nginx configuration to set up a proxy pass from Nginx to WordPress.
 
-#### Step 4: Build and Push Docker Images
+#### Step 5: Build and Push Docker Images
 
 1. **Build Docker Images:**
 
@@ -121,7 +132,7 @@ Ensure you have the following installed and configured:
    sudo docker push yashingole1000/nginx:v1
    ```
 
-#### Step 5: Configure Helm Chart
+#### Step 6: Configure Helm Chart
 
 1. **Create a Helm Chart:**
 
@@ -162,11 +173,9 @@ Ensure you have the following installed and configured:
    ```sh
    helm uninstall my-release
    ```
-
    ![kubectl get pods](https://github.com/user-attachments/assets/210b28f3-c24c-4dab-993a-83d4a98f41d7)
 
    ![OpenResty using load balancer DNS](https://github.com/user-attachments/assets/1c497b32-87f3-44fe-a453-b43b18efb15b)
-
 ### Monitoring Setup
 
 #### Add Prometheus and Grafana Repositories to Helm
@@ -193,7 +202,6 @@ helm install prometheus prometheus-community/kube-prometheus-stack --namespace m
 ```sh
 kubectl port-forward svc/prometheus-kube-prometheus-prometheus --namespace monitoring 9090:9090
 ```
-![Screenshot 2024-07-25 144131](https://github.com/user-attachments/assets/d76d45e1-4e12-4f5f-887d-aafb87646086)
 
 - **Check for Targets**: Ensure that Nginx and WordPress appear as targets in Prometheus.
 
@@ -205,6 +213,8 @@ kubectl port-forward svc/grafana 3000:3000
 ```
 
 - **Access Grafana**: [http://localhost:3000](http://localhost:3000)
+
+![Screenshot 2024-07-25 144131](https://github.com/user-attachments/assets/d76d45e1-4e12-4f5f-887d-aafb87646086)
 
 #### Configure Prometheus Data Source in Grafana
 
@@ -241,12 +251,11 @@ kubectl port-forward svc/grafana 3000:3000
    c. **Save and Customize Dashboards:**
       - Customize the appearance and layout of your dashboard to meet your monitoring needs.
       - Save your dashboard for future reference.
-  
-        ![Screenshot 2024-07-25 194046](https://github.com/user-attachments/assets/3b5d08fd-7a9d-47cd-a57e-e5e0b4d5365a)
-
 
 ### Conclusion
 
 - **Code and Configurations**: All relevant files and configurations are available in the repository.
 - **Documentation**: Detailed README notes are provided for deploying and testing the setup.
 - **Screenshots**: Visual documentation is available in the `Screenshots` directory for reference.
+
+![Screenshot 2024-07-25 194046](https://github.com/user-attachments/assets/3b5d08fd-7a9d-47cd-a57e-e5e0b4d5365a)
