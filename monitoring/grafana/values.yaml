@@ -1,5 +1,0 @@
-# Grafana custom values
-adminUser: admin
-adminPassword: admin
-service:
-  type: NodePort
